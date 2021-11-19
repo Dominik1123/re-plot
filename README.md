@@ -36,6 +36,7 @@ The current version of `replot` saves the following metadata as the `UserComment
 * command line arguments
 * environment variables
 * version of all packages in the current virtual environment
+* a snapshot of `matplotlib.rcParams`
 * current commit hash
 
 ## How does it work?
