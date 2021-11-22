@@ -1,17 +1,13 @@
 from .dependencies import monitor
+from . import patch
 
 
 __all__ = []
 
 
 def __getattr__(name: str):
-    global WARN
-
     if name == 'nowarn':
-        WARN = False
+        patch.WARN = False
         return None
     else:
         return globals()[name]
-
-
-WARN = True

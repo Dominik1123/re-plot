@@ -1,10 +1,12 @@
 from collections.abc import Set
+from functools import reduce
 import operator
 
 
-class UserSet(Set):
-    def __init__(self, iterable=()):
-        self.data = set(iterable)
+class DynamicSet(Set):
+    @property
+    def data(self):
+        raise NotImplementedError
 
     def __contains__(self, value):
         return value in self.data
@@ -18,16 +20,16 @@ class UserSet(Set):
     def __repr__(self):
         return repr(self.data)
 
+    @classmethod
+    def _from_iterable(cls, iterable):
+        return set(iterable)
 
-class LazySetUnion(UserSet):
+
+class LazySetUnion(DynamicSet):
     def __init__(self, *sets):
         super().__init__()
-        self._sets = args
+        self._sets = sets
 
     @property
     def data(self):
         return reduce(operator.or_, self._sets)
-    
-    @data.setter
-    def data(self, value):
-        pass

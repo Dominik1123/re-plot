@@ -1,12 +1,19 @@
 import builtins
 import json
+from pathlib import Path
+from typing import Union
 import warnings
 
 from matplotlib.figure import Figure
-from Pillow import Image
+from PIL import Image, ExifTags
 
-from .dependencies import monitor
+from .dependencies import compute_missing_dependencies, monitor
+from .metadata import compute_metadata
 
+
+EXIF_TAGS_BY_NAME = {name: number for number, name in ExifTags.TAGS.items()}
+
+WARN = True
 
 builtins.open = monitor(builtins.open)
 try:
@@ -31,13 +38,15 @@ def savefig(self, filename: Union[str, Path], *args, **kwargs):
     missing = compute_missing_dependencies()
     if missing:
         if WARN:
-            list_of_files = '\n* '.join(sorted(str(p.relative_to(REPO_DIR)) for p in missing))
-            warnings.warn(f'The following files must be added to the respository:\n\n{missing}')
+            sep = '\n* '
+            list_of_files = sep.join(sorted(f'{p!s}' for p in missing))
+            warnings.warn(f'The following files must be added to the respository:\n{sep}{list_of_files}\n')
         return None
-    result = _original_savefig(filename, *args, **kwargs)
-    img = Image(filename)
-    img.Exif['UserComment'] = json.dumps(compute_metadata())
-    img.save(filename)
+    result = _original_savefig(self, filename, *args, **kwargs)
+    img = Image.open(filename)
+    exif = img.getexif()
+    exif[EXIF_TAGS_BY_NAME['UserComment']] = json.dumps(compute_metadata())
+    img.save(filename, exif=exif)
     return result
 
 

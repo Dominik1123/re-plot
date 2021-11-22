@@ -1,9 +1,16 @@
+from functools import partial
+import json
 import os
-from subprocess import run
+from pathlib import Path
+from subprocess import check_output
 import sys
 
 import matplotlib
 
+from .dependencies import REPO, REPO_DIR
+
+
+check_output = partial(check_output, text=True)
 
 metadata_providers = []
 
@@ -21,12 +28,12 @@ def compute_metadata():
 
 @register_metadata_provider
 def current_working_directory():
-    return os.getcwd()
+    return str(Path.cwd().resolve())
 
 
 @register_metadata_provider
 def script_path():
-    return sys.modules['__main__'].__file__
+    return str(Path(sys.modules['__main__'].__file__).resolve().relative_to(REPO_DIR))
 
 
 @register_metadata_provider
@@ -36,7 +43,12 @@ def command_line_arguments():
 
 @register_metadata_provider
 def environment_variables():
-    return dict(os.environ)
+    return {
+        k: v for k, v in os.environ.items()
+        if k.startswith('PYTHON')
+            or k.startswith('CONDA_')
+            or k in ('LD_LIBRARY_PATH', 'MPLBACKEND', 'MPLCONFIGDIR', 'MPLSETUPCFG')
+    }
 
 
 @register_metadata_provider
@@ -44,18 +56,20 @@ def package_versions():
     if os.environ.get('CONDA_PREFIX') is not None:
         return dict(
             style='conda',
-            packages=run(['conda', 'list'], check=True, text=True),
+            packages=json.loads(check_output(['conda', 'list', '--json'])),
         )
     else:
         return dict(
             style='pip',
-            packages=run([sys.executable, '-m', 'pip', 'freeze'], check=True, text=True),
+            packages=check_output([sys.executable, '-m', 'pip', 'freeze']).split('\n'),
         )
 
 
 @register_metadata_provider
 def matplotlib_rcparams():
-    return dict(matplotlib.rcParams)
+    d = dict(matplotlib.rcParams)
+    del d['axes.prop_cycle']  # instance of `cycler.Cycler`; not JSON serializable
+    return d
 
 
 @register_metadata_provider
