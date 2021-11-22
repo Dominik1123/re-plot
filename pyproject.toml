@@ -1,0 +1,27 @@
+[build-system]
+requires = ["flit_core >=2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "replot"
+version = "0.1.0"
+description = "How did I create that plot again 🤔"
+authors = [
+	{name = "Dominik1123"},
+]
+readme = "README.md"
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+]
+requires-python = ">=3.7"
+dependencies = [
+	"matplotlib >= 3.0",
+	"Pillow >= 8.0",
+	"GitPython >= 3.0",
+]
+
+[project.urls]
+Source = "https://github.com/Dominik1123/re-plot"
+
+[tool.flit.module]
+name = "replot"

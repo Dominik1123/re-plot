@@ -30,9 +30,8 @@ The approach relies on two aspects, *metadata* and *capturing*.
 
 The current version of `replot` saves the following metadata as the `UserComment` [Exif](https://en.wikipedia.org/wiki/Exif) tag together with the image (as a JSON dictionary):
 
+* the current working directory
 * script file path relative to repository root
-* file path of any imported modules
-* file path of any dependent files
 * command line arguments
 * environment variables
 * version of all packages in the current virtual environment
