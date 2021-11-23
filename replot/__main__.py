@@ -23,9 +23,10 @@ def main():
             metadata = re.sub('^User Comment +: +', '', text)
         else:
             print('"User Comment" field not found')
-            sys.exit(1)
+            return 1
     print(json.dumps(json.loads(metadata), indent=2))
+    return 0
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
