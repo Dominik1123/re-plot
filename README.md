@@ -58,9 +58,13 @@ If any of the file dependencies is not part of the git repository or if it conta
 
 ## How to view the data?
 
-The `replot` package can be used to print the metadata in JSON format by passing only the `User Comment` field of the Exif data
-to the script; for example:
+The `replot` package can be used to print the metadata in JSON format by passing the image file path as a command line argument or
+by passing only the `User Comment` field of the Exif data via stdin; for example:
 
 ```
-exiftool test.png | grep "User Comment" | python -m replot
+python -m replot test.png
+exiftool -UserComment test.png | python -m replot
 ```
+
+This will print all metadata information, however typically the `commit_hash` field is sufficient,
+given that `replot` enforces putting all file dependencies under version control before a figure can be saved.

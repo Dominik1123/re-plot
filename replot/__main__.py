@@ -1,13 +1,31 @@
+from argparse import ArgumentParser
 import json
 import re
 import sys
 
+from PIL import Image
+
+from .patch import EXIF_TAGS_BY_NAME
+
+
+parser = ArgumentParser()
+parser.add_argument('file', nargs='?')
+
+
+def main():
+    args = parser.parse_args()
+    if args.file:
+        img = Image.open(args.file)
+        metadata = img.getexif()[EXIF_TAGS_BY_NAME['UserComment']]
+    else:
+        text = input()
+        if text.startswith('User Comment'):
+            metadata = re.sub('^User Comment +: +', '', text)
+        else:
+            print('"User Comment" field not found')
+            sys.exit(1)
+    print(json.dumps(json.loads(metadata), indent=2))
+
 
 if __name__ == '__main__':
-    text = input()
-    if not text.startswith('User Comment'):
-        print('Please only provide the "User Comment" field, e.g. via '
-              'exiftool example.png | grep "User Comment"')
-        sys.exit(1)
-    text = re.sub('^User Comment +: +', '', text)
-    print(json.dumps(json.loads(text), indent=2))
+    main()
