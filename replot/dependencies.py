@@ -2,7 +2,7 @@ from functools import wraps
 import os
 from pathlib import Path
 import sys
-from typing import Callable, Union
+from typing import Callable, Set, Union
 
 from git import Repo
 
@@ -17,7 +17,15 @@ REPO_DIR = Path(REPO.working_tree_dir)
 
 
 class CustomModuleDependencies(DynamicSet):
-    ignore_packages = {'replot'}
+    """Set of all custom modules that have been imported by the program.
+
+    This excludes modules from standard library or third party (site) packages.
+    If a distribution is installed in editable mode (`pip install -e ...`), then
+    it will be identified as a custom module. To prevent this, the corresponding
+    package name can be added to `CustomModuleDependencies.ignore_packages`.
+    """
+
+    ignore_packages = {'replot'}  # replot could be installed in editable mode
 
     @property
     def data(self):
@@ -45,7 +53,7 @@ def add_file_dependency(file: Path):
     file_dependencies.add(file)
 
 
-def monitor(func: Callable):
+def monitor(func: Callable) -> Callable:
     """Monitor the given function for file dependencies.
 
     The given function `func` is expected to receive a file path
@@ -67,7 +75,13 @@ def monitor(func: Callable):
     return wrapper
 
 
-def compute_missing_dependencies():
+def compute_missing_dependencies() -> Set[Path]:
+    """Compute which file dependencies are not saved in the repository.
+
+    This considers those files which are located outside of the repository,
+    as well as any untracked, modified, new or ignored file.
+    """
+
     def _join_paths_with_repo_dir(paths):
         return set(REPO_DIR.joinpath(p) for p in paths)
 

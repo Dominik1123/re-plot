@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from subprocess import check_output
 import sys
+from typing import Any, Callable, Dict
 
 import matplotlib
 
@@ -15,12 +16,18 @@ check_output = partial(check_output, text=True)
 metadata_providers = []
 
 
-def register_metadata_provider(obj):
+def register_metadata_provider(obj: Callable) -> Callable:
+    """Decorator for registering a function as a metadata provider.
+
+    The function must assume no arguments and return a single JSON
+    serializable object.
+    """
     metadata_providers.append(obj)
     return obj
 
 
-def compute_metadata():
+def compute_metadata() -> Dict[str, Any]:
+    """Compute all metadata from the registered providers."""
     return {p.__name__: p() for p in metadata_providers}
 
 

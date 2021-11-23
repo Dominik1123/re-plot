@@ -35,6 +35,7 @@ _original_savefig = Figure.savefig
 
 
 def savefig(self, filename: Union[str, Path], *args, **kwargs):
+    """Re-plot's wrapper around the original Figure.savefig."""
     missing = compute_missing_dependencies()
     if missing:
         if WARN:
