@@ -52,14 +52,14 @@ All you need to do is `import replot` somewhere at the top of your script and th
 
 Data that is accessed in different ways won't be added to the list of dependencies. Custom data loaders can be registered for monitoring via `replot.monitor`.
 
-In addition, it counts the main script as well as any other imported modules as file dependencies.
+In addition, it counts the main script as well as any other imported custom modules as file dependencies.
 
 If any of the file dependencies is not part of the git repository or if it contains unsaved changes, `replot` will refuse to create a new image via `Figure.savefig`. Instead it will print a warning which informs about the unsaved file dependencies. This warning can be suppressed via `from replot import nowarn`. A typical workflow would be to repeatedly view the plot via `plt.show()`, then commit all the changes and then running the script again will also create the plot image.
 
 ## How to view the data?
 
 The `replot` package can be used to print the metadata in JSON format by passing the image file path as a command line argument or
-by passing only the `User Comment` field of the Exif data via stdin; for example:
+by passing the `User Comment` field of the Exif data via stdin; for example:
 
 ```
 python -m replot test.png
