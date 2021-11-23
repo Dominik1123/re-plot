@@ -21,6 +21,7 @@ dependencies = [
 ]
 
 [project.urls]
+Home = "https://github.com/Dominik1123/re-plot"
 Source = "https://github.com/Dominik1123/re-plot"
 
 [tool.flit.module]
