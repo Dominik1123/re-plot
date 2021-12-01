@@ -48,7 +48,7 @@ if hasattr(sys.modules['__main__'], '__file__'):
     file_dependencies.add(Path(sys.modules['__main__'].__file__).resolve())
 dependencies = LazySetUnion(file_dependencies, CustomModuleDependencies())
 
-IGNORE_PATHS = {Path(os.devnull)}
+IGNORE_PATHS: Set[Path] = {Path(os.devnull)}
 
 
 def add_file_dependency(file: Path):

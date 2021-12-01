@@ -7,7 +7,7 @@ import warnings
 from matplotlib.figure import Figure
 from PIL import Image, ExifTags
 
-from .dependencies import compute_missing_dependencies, monitor
+from .dependencies import compute_missing_dependencies, monitor, IGNORE_PATHS
 from .metadata import compute_metadata
 
 
@@ -43,6 +43,7 @@ def savefig(self, filename: Union[str, Path], *args, **kwargs):
             list_of_files = sep.join(sorted(f'{p!s}' for p in missing))
             warnings.warn(f'The following files must be added to the respository:\n{sep}{list_of_files}\n')
         return None
+    IGNORE_PATHS.add(Path(filename))
     result = _original_savefig(self, filename, *args, **kwargs)
     img = Image.open(filename)
     exif = img.getexif()
