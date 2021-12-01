@@ -48,9 +48,14 @@ if hasattr(sys.modules['__main__'], '__file__'):
     file_dependencies.add(Path(sys.modules['__main__'].__file__).resolve())
 dependencies = LazySetUnion(file_dependencies, CustomModuleDependencies())
 
+IGNORE_PATHS = {Path(os.devnull)}
+
 
 def add_file_dependency(file: Path):
-    file_dependencies.add(file)
+    if not isinstance(file, Path):
+        raise TypeError('File path must be given as Path instance')
+    if file not in IGNORE_PATHS:
+        file_dependencies.add(file)
 
 
 def monitor(func: Callable) -> Callable:
