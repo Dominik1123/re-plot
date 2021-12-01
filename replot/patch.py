@@ -43,7 +43,7 @@ def savefig(self, filename: Union[str, Path], *args, **kwargs):
             list_of_files = sep.join(sorted(f'{p!s}' for p in missing))
             warnings.warn(f'The following files must be added to the respository:\n{sep}{list_of_files}\n')
         return None
-    IGNORE_PATHS.add(Path(filename))
+    IGNORE_PATHS.add(Path(filename).resolve())
     result = _original_savefig(self, filename, *args, **kwargs)
     img = Image.open(filename)
     exif = img.getexif()
