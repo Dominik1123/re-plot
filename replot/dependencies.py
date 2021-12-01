@@ -49,13 +49,26 @@ if hasattr(sys.modules['__main__'], '__file__'):
 dependencies = LazySetUnion(file_dependencies, CustomModuleDependencies())
 
 IGNORE_PATHS: Set[Path] = {Path(os.devnull)}
+IGNORE_RESOURCES: Set[Path] = {
+    Path('site-packages') / 'matplotlib' / 'mpl-data' / 'fonts',
+}
+
+
+def _path_contains(path: Path, subpath: Path):
+    p_parts = path.resolve().parts
+    s_parts = subpath.parts
+    for i in range(len(p_parts)-len(s_parts)):
+        if p_parts[i:i+len(s_parts)] == s_parts:
+            return True
+    return False
 
 
 def add_file_dependency(file: Path):
     if not isinstance(file, Path):
         raise TypeError('File path must be given as Path instance')
-    if file not in IGNORE_PATHS:
-        file_dependencies.add(file)
+    if file in IGNORE_PATHS or any(_path_contains(file, p) for p in IGNORE_RESOURCES):
+        return
+    file_dependencies.add(file)
 
 
 def monitor(func: Callable) -> Callable:
