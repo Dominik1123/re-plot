@@ -32,7 +32,7 @@ class CustomModuleDependencies(DynamicSet):
         files = (
             mod.__file__
             for name, mod in sys.modules.items()
-            if name != '__main__'
+            if name not in ('__main__', '__mp_main__')
                 and getattr(mod, '__file__', None) is not None  # __file__ might be None, so we can't use `hasattr`
         )
         return {
@@ -48,7 +48,7 @@ if hasattr(sys.modules['__main__'], '__file__'):
     file_dependencies.add(Path(sys.modules['__main__'].__file__).resolve())
 dependencies = LazySetUnion(file_dependencies, CustomModuleDependencies())
 
-IGNORE_PATHS: Set[Path] = {Path(os.devnull)}
+IGNORE_PATHS: Set[Path] = {Path(os.devnull), Path('/proc/stat')}
 IGNORE_RESOURCES: Set[Path] = {
     Path('site-packages') / 'matplotlib' / 'mpl-data' / 'fonts',
 }
