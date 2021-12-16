@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "replot"
-version = "0.1.2"
+version = "0.1.3"
 description = "How did I create that plot again 🤔"
 authors = [
 	{name = "Dominik1123"},
