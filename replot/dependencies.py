@@ -1,3 +1,4 @@
+from fnmatch import fnmatch
 from functools import wraps
 import os
 from pathlib import Path
@@ -43,6 +44,14 @@ class CustomModuleDependencies(DynamicSet):
         }
 
 
+class PathPattern:
+    def __init__(self, pattern: str):
+        self.pattern = pattern
+
+    def __str__(self):
+        return self.pattern
+
+
 file_dependencies = set()
 if hasattr(sys.modules['__main__'], '__file__'):
     file_dependencies.add(Path(sys.modules['__main__'].__file__).resolve())
@@ -51,7 +60,19 @@ dependencies = LazySetUnion(file_dependencies, CustomModuleDependencies())
 IGNORE_PATHS: Set[Path] = {Path(os.devnull), Path('/proc/stat')}
 IGNORE_RESOURCES: Set[Path] = {
     Path('site-packages') / 'matplotlib' / 'mpl-data' / 'fonts',
+    PathPattern('*.dist-info/namespace_packages.txt'),
+    PathPattern('*.egg-info/namespace_packages.txt'),
+    PathPattern('*.egg-info/PKG-INFO'),
 }
+
+
+def _path_match(path: Path, other: Union[Path, PathPattern]):
+    if isinstance(other, Path):
+        return _path_contains(path, other)
+    elif isinstance(other, PathPattern):
+        return fnmatch(path, str(other))
+    else:
+        raise TypeError(other)
 
 
 def _path_contains(path: Path, subpath: Path):
@@ -66,7 +87,7 @@ def _path_contains(path: Path, subpath: Path):
 def add_file_dependency(file: Path):
     if not isinstance(file, Path):
         raise TypeError('File path must be given as Path instance')
-    if file in IGNORE_PATHS or any(_path_contains(file, p) for p in IGNORE_RESOURCES):
+    if file in IGNORE_PATHS or any(_path_match(file, p) for p in IGNORE_RESOURCES):
         return
     file_dependencies.add(file)
 
